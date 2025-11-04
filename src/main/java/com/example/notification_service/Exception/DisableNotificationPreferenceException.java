@@ -5,5 +5,4 @@ public class DisableNotificationPreferenceException extends RuntimeException {
     super(message);
   }
 
-  public DisableNotificationPreferenceException() {}
 }

@@ -5,5 +5,4 @@ public class NotificationPreferenceNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public NotificationPreferenceNotFoundException() {}
 }
