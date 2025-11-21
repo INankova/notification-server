@@ -40,4 +40,17 @@ public class Notification {
     private UUID userId;
 
     private boolean deleted;
+
+    private LocalDateTime scheduledAt;
+
+    @Column(nullable = false)
+    private Integer attempts;
+
+    private String lastError;
+
+    @PrePersist
+    void prePersist() {
+        if (created == null) created = LocalDateTime.now();
+        if (attempts == null) attempts = 0;
+    }
 }

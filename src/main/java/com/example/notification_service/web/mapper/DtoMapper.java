@@ -31,6 +31,7 @@ public class DtoMapper {
     public static NotificationResponse fromNotification(Notification notification) {
         return NotificationResponse.builder()
                 .subject(notification.getSubject())
+                .body(notification.getBody())
                 .created(notification.getCreated())
                 .status(notification.getStatus())
                 .type(notification.getType())

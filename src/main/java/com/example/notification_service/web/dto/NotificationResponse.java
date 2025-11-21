@@ -13,6 +13,8 @@ public class NotificationResponse {
 
     private String subject;
 
+    private String body;
+
     private LocalDateTime created;
 
     private NotificationStatus status;
