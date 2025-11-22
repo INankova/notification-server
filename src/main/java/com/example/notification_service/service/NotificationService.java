@@ -158,6 +158,9 @@ public class NotificationService {
     }
 
     public Notification scheduleNotification(NotificationRequest req, LocalDateTime scheduledAt) {
+        log.error("### scheduleNotification: userId={}, subject='{}', scheduledAt={}",
+                req.getUserId(), req.getSubject(), scheduledAt);
+
         NotificationPreference pref = getPreferenceByUserId(req.getUserId());
         if (!pref.isEnabled()) {
             throw new DisableNotificationPreferenceException("Notification preference is disabled!");
@@ -175,8 +178,13 @@ public class NotificationService {
                 .attempts(0)
                 .build();
 
-        return notificationRepository.save(n);
+        Notification saved = notificationRepository.save(n);
+        log.error("### scheduleNotification SAVED: id={}, status={}, scheduledAt={}",
+                saved.getId(), saved.getStatus(), saved.getScheduledAt());
+
+        return saved;
     }
+
 
     public List<Notification> scheduleEventReminders(EventReminderRequest r) {
         List<Integer> offsets = (r.getOffsetsMinutes() == null || r.getOffsetsMinutes().isEmpty())
@@ -228,8 +236,13 @@ public class NotificationService {
         List<Notification> due = notificationRepository
                 .findAllByStatusAndScheduledAtBefore(NotificationStatus.PENDING, now);
 
+        log.error("### processDueNotifications: found {} pending notifications", due.size());
+
         for (Notification n : due) {
             try {
+                log.error("### processDueNotifications: sending id={}, userId={}, subject='{}'",
+                        n.getId(), n.getUserId(), n.getSubject());
+
                 sendEmail(n);
                 n.setStatus(NotificationStatus.SUCCEEDED);
                 n.setLastError(null);
@@ -246,6 +259,7 @@ public class NotificationService {
             notificationRepository.save(n);
         }
     }
+
 
     public Notification getById(UUID id) {
         return notificationRepository.findById(id)
