@@ -14,6 +14,9 @@ import com.example.notification_service.web.dto.EventReminderRequest;
 import com.example.notification_service.web.dto.NotificationRequest;
 import com.example.notification_service.web.dto.NotificationTypeRequest;
 import com.example.notification_service.web.dto.UpsertNotificationPreference;
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +50,13 @@ class NotificationServiceITest {
     static class TestConfig {
 
         static class TestMailSender extends JavaMailSenderImpl {
+            @Getter
             private final List<SimpleMailMessage> sentMessages = new ArrayList<>();
+            @Setter
             private boolean failNext = false;
 
             @Override
-            public void send(SimpleMailMessage simpleMessage) {
+            public void send(@NotNull SimpleMailMessage simpleMessage) {
                 if (failNext) {
                     failNext = false;
                     throw new RuntimeException("SMTP down (simulated)");
@@ -59,18 +64,11 @@ class NotificationServiceITest {
                 sentMessages.add(simpleMessage);
             }
 
-            public List<SimpleMailMessage> getSentMessages() {
-                return sentMessages;
-            }
-
             public void clear() {
                 sentMessages.clear();
                 failNext = false;
             }
 
-            public void setFailNext(boolean failNext) {
-                this.failNext = failNext;
-            }
         }
 
         @Bean
@@ -113,7 +111,7 @@ class NotificationServiceITest {
         return preferenceRepository.save(pref);
     }
 
-    private NotificationPreference createDisabledPreference(UUID userId, String email) {
+    private void createDisabledPreference(UUID userId, String email) {
         NotificationPreference pref = NotificationPreference.builder()
                 .userId(userId)
                 .type(NotificationType.EMAIL)
@@ -122,7 +120,7 @@ class NotificationServiceITest {
                 .createdOn(LocalDateTime.now())
                 .updatedOn(LocalDateTime.now())
                 .build();
-        return preferenceRepository.save(pref);
+        preferenceRepository.save(pref);
     }
 
     @Test
@@ -357,6 +355,10 @@ class NotificationServiceITest {
         UUID userId = UUID.randomUUID();
         NotificationPreference existing =
                 createEnabledPreference(userId, "old@example.com");
+
+        existing.setUpdatedOn(existing.getUpdatedOn().minusMinutes(5));
+        existing = preferenceRepository.save(existing);
+
         LocalDateTime oldUpdated = existing.getUpdatedOn();
 
         UpsertNotificationPreference dto = UpsertNotificationPreference.builder()

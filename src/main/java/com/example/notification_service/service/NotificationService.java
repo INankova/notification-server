@@ -45,8 +45,6 @@ public class NotificationService {
 
     public NotificationPreference upsertPreference(UpsertNotificationPreference dto) {
 
-        // upsert
-
         Optional<NotificationPreference> userNotificationPreferenceOptional = preferenceRepository.findByUserId(dto.getUserId());
 
         if (userNotificationPreferenceOptional.isPresent()) {

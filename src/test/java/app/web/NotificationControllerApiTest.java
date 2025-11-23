@@ -100,7 +100,6 @@ class NotificationControllerApiTest {
         verify(notificationService).findPreferenceByUserId(userId);
     }
 
-
     @Test
     void sendNotification_shouldReturnCreatedAndMappedNotification() {
         UUID userId = UUID.randomUUID();
